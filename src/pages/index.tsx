@@ -101,6 +101,7 @@ export default function Home() {
                     onClick={() => {
                       setMyLat(0);
                       setMyLong(0);
+                      setLocations([]);
                       getMyCoords();
                     }}
                   >
