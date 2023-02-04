@@ -1,34 +1,41 @@
 import locationsJson from '@/data/locations.json';
-import { GeolocationType, getDistanceInKm } from '@/utils/geolocation';
+import citiesJson from '@/data/cities.json';
+import {
+  GeolocationType,
+  getDistanceInKm,
+  haversineDistance,
+} from '@/utils/geolocation';
 
-interface Location {
+interface BaseLocation {
   Title: string;
   Description: string;
   Longitude: string;
   Latitude: string;
   LocationDescription: string;
+  Tags: string[];
 }
 
-type LocationDistance = Location & {
+type Location = BaseLocation & {
   Distance: number;
 };
 
 const locations = locationsJson.map(
-  (location): Location => ({
+  (location): BaseLocation => ({
     Title: location.title,
     Description: location.description,
     Longitude: location.longitude,
     Latitude: location.latitude,
     LocationDescription: location.locationDescription,
+    Tags: location.tags,
   }),
 );
 
-const getLocations = (): Location[] => {
+const getLocations = (): BaseLocation[] => {
   return locations;
 };
 
-const getNearestLocations = (location: GeolocationType): LocationDistance[] => {
-  const locDistances: LocationDistance[] = [];
+const getNearestLocations = (location: GeolocationType): Location[] => {
+  const locDistances: Location[] = [];
 
   locations.forEach((currLoc) => {
     const distance = getDistanceInKm(
@@ -53,4 +60,26 @@ const getNearestLocations = (location: GeolocationType): LocationDistance[] => {
   return locDistances;
 };
 
-export { getLocations, getNearestLocations };
+const getNearestCityName = (loc: GeolocationType): string => {
+  let minDistance = Infinity;
+  let minCityLocation = '';
+
+  citiesJson.forEach((city) => {
+    const cityGeoloc: GeolocationType = {
+      Latitude: +city.lat,
+      Longitude: +city.lng,
+    };
+
+    const distance = haversineDistance(loc, cityGeoloc);
+
+    if (distance < minDistance) {
+      minCityLocation = city.city;
+      minDistance = distance;
+    }
+  });
+
+  return minCityLocation;
+};
+
+export { getLocations, getNearestLocations, getNearestCityName };
+export type { BaseLocation, Location };

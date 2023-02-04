@@ -9,11 +9,18 @@ import {
   Chip,
   Divider,
 } from '@mui/material';
+import {
+  getNearestCityName,
+  getNearestLocations,
+  Location,
+} from '@/services/location';
+import { GeolocationType } from '@/utils/geolocation';
 
 export default function Home() {
   const [myLat, setMyLat] = useState<number>(0);
   const [myLong, setMyLong] = useState<number>(0);
   const [myCity, setMyCity] = useState<string>('Loading');
+  const [locations, setLocations] = useState<Location[]>([]);
 
   // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => {
@@ -21,9 +28,18 @@ export default function Home() {
       setMyLat(position.coords.latitude);
       setMyLong(position.coords.longitude);
     });
-
-    setMyCity('Jakarta');
   });
+
+  useEffect(() => {
+    const geoLoc: GeolocationType = {
+      Latitude: myLat,
+      Longitude: myLong,
+    };
+    const cityName = getNearestCityName(geoLoc);
+    setMyCity(cityName);
+    const locations = getNearestLocations(geoLoc);
+    setLocations(locations);
+  }, [myLat, myLong]);
 
   return (
     <>
@@ -80,24 +96,42 @@ export default function Home() {
       </Container>
       <Container maxWidth="lg">
         <Box>
-          <Card variant="outlined" sx={{ borderWidth: 2 }}>
-            <CardContent>
-              <Box>
-                <Typography fontSize="1.25rem" fontWeight="bold">
-                  GyuKaku Senayan Park
-                </Typography>
-              </Box>
-              <Divider variant="middle" />
-              <Box marginTop={1}>
-                <Chip
-                  label={
-                    <Typography textTransform="uppercase">ayce</Typography>
-                  }
-                  color="info"
-                />
-              </Box>
-            </CardContent>
-          </Card>
+          {locations &&
+            locations.length > 0 &&
+            locations.map((loc) => (
+              <Card
+                key={`${loc.Latitude}-${loc.Longitude}`}
+                variant="outlined"
+                sx={{ borderWidth: 2 }}
+              >
+                <CardContent>
+                  <Box>
+                    <Typography fontSize="1.25rem" fontWeight="bold">
+                      {loc.Title}
+                    </Typography>
+                    <Typography>
+                      {(Math.round(loc.Distance * 100) / 100).toFixed(2)}km
+                    </Typography>
+                  </Box>
+                  <Divider variant="middle" />
+                  <Box marginTop={1}>
+                    {loc.Tags &&
+                      loc.Tags.length > 0 &&
+                      loc.Tags.map((tag) => (
+                        <Chip
+                          key={tag}
+                          label={
+                            <Typography textTransform="uppercase">
+                              {tag}
+                            </Typography>
+                          }
+                          color="info"
+                        />
+                      ))}
+                  </Box>
+                </CardContent>
+              </Card>
+            ))}
         </Box>
       </Container>
     </>
