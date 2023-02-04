@@ -81,7 +81,10 @@ export default function Home() {
                 }}
               >
                 <Box>
-                  <Box>My Position: {myCity}</Box>
+                  <Box display="flex">
+                    <Typography>{'My Position: '}</Typography>
+                    <Typography fontWeight="bold">{myCity}</Typography>
+                  </Box>
                   <Box>
                     {myLat}, {myLong}
                   </Box>
