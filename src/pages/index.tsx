@@ -37,8 +37,10 @@ export default function Home() {
     };
     const cityName = getNearestCityName(geoLoc);
     setMyCity(cityName);
-    const locations = getNearestLocations(geoLoc);
-    setLocations(locations);
+    if (myLat != 0 && myLong != 0) {
+      const locations = getNearestLocations(geoLoc);
+      setLocations(locations);
+    }
   }, [myLat, myLong]);
 
   return (
