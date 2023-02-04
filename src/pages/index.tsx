@@ -22,12 +22,16 @@ export default function Home() {
   const [myCity, setMyCity] = useState<string>('Loading');
   const [locations, setLocations] = useState<Location[]>([]);
 
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  useEffect(() => {
+  const getMyCoords = () => {
     navigator.geolocation.getCurrentPosition(function (position) {
       setMyLat(position.coords.latitude);
       setMyLong(position.coords.longitude);
     });
+  };
+
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  useEffect(() => {
+    getMyCoords();
   });
 
   useEffect(() => {
@@ -92,7 +96,16 @@ export default function Home() {
                   </Box>
                 </Box>
                 <Box>
-                  <Button variant="contained">Refresh</Button>
+                  <Button
+                    variant="contained"
+                    onClick={() => {
+                      setMyLat(0);
+                      setMyLong(0);
+                      getMyCoords();
+                    }}
+                  >
+                    Refresh
+                  </Button>
                 </Box>
               </Box>
             </CardContent>
